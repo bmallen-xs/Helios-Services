@@ -1,0 +1,16 @@
+services:
+  hue:
+    image: "gethue/hue:latest"
+    ports:
+      - "8888:8888"
+    labels:
+      "com.helios.target": "http://localhost:8888"
+
+volumes:
+  cloudbeaver: {}
+  cloudbeaver_certs: {}
+  postgres_data: {}
+  nginx_ssl_data: {}
+  nginx_conf_data: {}
+  trusted_cacerts: {}
+  api_tokens: {}
