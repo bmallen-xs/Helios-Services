@@ -4,14 +4,7 @@ services:
     container_name: hue
     ports:
       - "8888:8888"
+    volumes:
+      - ./hue.ini:/usr/share/hue/desktop/conf/z-hue.ini
     labels:
       "com.helios.target": "http://localhost:8888"
-
-volumes:
-  cloudbeaver: {}
-  cloudbeaver_certs: {}
-  postgres_data: {}
-  nginx_ssl_data: {}
-  nginx_conf_data: {}
-  trusted_cacerts: {}
-  api_tokens: {}
