@@ -1,4 +1,17 @@
 services:
+  loki:
+    image: grafana/loki:latest
+    container_name: loki
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./loki-config.yaml:/etc/loki/local-config.yaml
+      - ../data/loki_data:/loki
+    networks:
+      - monitoring_network
+    labels:
+      "com.helios.target": "http://localhost:3100"
   grafana:
     image: grafana/grafana
     container_name: grafana
@@ -6,16 +19,57 @@ services:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./grafana/provisioning/:/etc/grafana/provisioning/
+      - ../data/grafana/provisioning/:/etc/grafana/provisioning/
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
     networks:
       - monitoring_network
     labels:
       "com.helios.target": "http://localhost:3000"
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ../data/prometheus/:/etc/prometheus/
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - monitoring_network
+    labels:
+      "com.helios.target": "http://localhost:9090"
+  node-exporter:
+    image: prom/node-exporter
+    container_name: node-exporter
+    command:
+      - '--web.config.file=/etc/node_exporter/config.yml'
+    volumes:
+      - ./node-exporter.yml:/etc/node_exporter/config.yml
+    networks:
+      - monitoring_network
+    ports:
+      - 9100:9100
+    labels:
+      "com.helios.target": "http://localhost:9100"
+  alert-manager:
+    image: prom/alertmanager
+    container_name: alert-manager
+    volumes:
+      - "./alertmanager.yml:/alertmanager/alertmanager.yml"
+    networks:
+      - monitoring_network
+    ports:
+      - 9093:9093
+    labels:
+      "com.helios.target": "http://localhost:9093"
 
 volumes:
+  prometheus_data:
   grafana_data:
 
 networks:

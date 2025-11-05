@@ -1,0 +1,47 @@
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    environment:
+      KC_HOSTNAME: keycloak
+      KC_HOSTNAME_PORT: 8080 # Or your desired external port
+      # KC_HOSTNAME_STRICT_BACKCHANNEL: "true"
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL_HOST: postgres
+      KC_DB_URL_PORT: 5432
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+      KC_HEALTH_ENABLED: "true"
+      KC_LOG_LEVEL: info
+    ports:
+      - "8080:8080" # Map host port 8080 to container port 8080
+    command: ["start-dev"] # Use start-dev for development
+    depends_on:
+      - postgres
+    networks:
+      - keycloak-network
+    volumes:
+      - keycloak_data:/opt/keycloak/data # Persist Keycloak data
+    labels:
+      "com.helios.target": "http://localhost:8080"
+
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data # Persist PostgreSQL data
+    networks:
+      - keycloak-network
+
+volumes:
+  keycloak_data:
+  postgres_data:
+
+networks:
+  keycloak-network:
+    driver: bridge

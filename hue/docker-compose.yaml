@@ -1,6 +1,7 @@
 services:
   hue:
     image: "gethue/hue:latest"
+    container_name: hue
     ports:
       - "8888:8888"
     labels:

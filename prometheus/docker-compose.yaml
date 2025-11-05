@@ -16,6 +16,7 @@ services:
       "com.helios.target": "http://localhost:9090"
   node-exporter:
     image: prom/node-exporter
+    container_name: node-exporter
     command:
       - '--web.config.file=/etc/node_exporter/config.yml'
     volumes:
@@ -28,6 +29,7 @@ services:
       "com.helios.target": "http://localhost:9100"
   alert-manager:
     image: prom/alertmanager
+    container_name: alert-manager
     volumes:
       - "./alertmanager.yml:/alertmanager/alertmanager.yml"
     networks:
