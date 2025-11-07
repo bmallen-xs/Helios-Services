@@ -1,64 +1,16 @@
 services:
-  web-proxy:
-    restart: unless-stopped
-    image: ${IMAGE_SOURCE:-dbeaver}/cloudbeaver-${PROXY_TYPE:-nginx}:${CLOUDBEAVER_VERSION_TAG}
-    ports:
-      - 8078:8080
-      # - 443:8443
-    environment:
-      - COMPOSE_PROJECT_NAME=${COMPOSE_PROJECT_NAME:-dbeaver}
-      - CLOUDBEAVER_WEB_SERVER_PORT=${CLOUDBEAVER_WEB_SERVER_PORT:-8978}
-    networks:
-      - cloudbeaver-private-net
-    volumes:
-      - nginx_conf_data:/etc/${PROXY_TYPE:-nginx}/product-conf/
-      - nginx_ssl_data:/etc/${PROXY_TYPE:-nginx}/ssl/
-    depends_on:
-      - cloudbeaver
-    labels:
-      "com.helios.target": "http://localhost:8078"
-
-  cloudbeaver:
-    restart: unless-stopped
+   cloudbeaver:
     hostname: cloudbeaver
-    image: ${IMAGE_SOURCE:-dbeaver}/cloudbeaver-ee:${CLOUDBEAVER_VERSION_TAG}
-    volumes:
-      - cloudbeaver:/opt/cloudbeaver/workspace
-      - cloudbeaver_certs:/opt/cloudbeaver/conf/certificates/
-      - trusted_cacerts:/opt/cloudbeaver/workspace/.data/custom/
-      - api_tokens:/opt/cloudbeaver/conf/keys/
-    environment:
-      - CLOUDBEAVER_DB_DRIVER=${CLOUDBEAVER_DB_DRIVER}
-      - CLOUDBEAVER_DB_URL=${CLOUDBEAVER_DB_URL}
-      - CLOUDBEAVER_DB_USER=${CLOUDBEAVER_DB_USER}
-      - CLOUDBEAVER_DB_PASSWORD=${CLOUDBEAVER_DB_PASSWORD}
-      - CLOUDBEAVER_DB_SCHEMA=${CLOUDBEAVER_DB_SCHEMA}
-      - CLOUDBEAVER_QM_DB_DRIVER=${CLOUDBEAVER_QM_DB_DRIVER}
-      - CLOUDBEAVER_QM_DB_URL=${CLOUDBEAVER_QM_DB_URL}
-      - CLOUDBEAVER_QM_DB_USER=${CLOUDBEAVER_QM_DB_USER}
-      - CLOUDBEAVER_QM_DB_PASSWORD=${CLOUDBEAVER_QM_DB_PASSWORD}
-      - CLOUDBEAVER_QM_DB_SCHEMA=${CLOUDBEAVER_QM_DB_SCHEMA}
-    expose:
-      - ${CLOUDBEAVER_WEB_SERVER_PORT:-8978}
-    depends_on:
-      - postgres
-    networks:
-      - cloudbeaver-private-net
-
-  postgres:
+    container_name: cloudbeaver
+    image: dbeaver/cloudbeaver:latest
     restart: unless-stopped
-    hostname: postgres
-    image: ${IMAGE_SOURCE:-dbeaver}/cloudbeaver-postgres:16
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "8978:8978" # Host_Port:Container_Port
+    labels:
+      "com.helios.target": "http://localhost:8978"
     environment:
-      - POSTGRES_DB=cloudbeaver
-      - POSTGRES_USER=${CLOUDBEAVER_DB_USER}
-      - POSTGRES_PASSWORD=${CLOUDBEAVER_DB_PASSWORD}
-    expose:
-      - 5432
-    networks:
-      - cloudbeaver-private-net
-
-networks:
-  cloudbeaver-private-net:
+      # Optional: Configure the initial admin user
+      CB_ADMIN_NAME: cbadmin
+      CB_ADMIN_PASSWORD: Abcd1234 # Change this to a secure password
+      CB_SERVER_NAME: "Test Server"
+      CB_SERVER_URL: "cloudbeaver.devlocal.site"

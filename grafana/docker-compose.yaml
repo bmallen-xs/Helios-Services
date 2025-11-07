@@ -24,10 +24,15 @@ services:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_SERVER_DOMAIN=grafana.devlocal.site
+      - GF_SERVER_ROOT_URL=https://grafana.devlocal.site/
+      - GF_SERVER_PROTOCOL=https
+      - GF_LIVE_ALLOWED_ORIGINS=grafana.devlocal.site
+      - GF_SECURITY_CSRF_TRUSTED_ORIGINS=grafana.devlocal.site
     networks:
       - monitoring_network
     labels:
-      "com.helios.target": "http://localhost:3000"
+      "com.helios.target": "https://localhost:3000"
   prometheus:
     image: prom/prometheus
     container_name: prometheus
